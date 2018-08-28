@@ -19,7 +19,7 @@ Anna at anna@frame.io.
 Please commit all your changes to this git repository. When you're done:
 
 1. Create a zip / tarball of this repository (excluding `node_modules`) and
-   submit it to https://www.dropbox.com/request/06JH3TUA6dBnNuzEe3FS
+   submit it to https://www.dropbox.com/request/RonDKCswJNCcDnzPsQTH
 2. Email Anna to let her know you're done.
 
 ## Overview
