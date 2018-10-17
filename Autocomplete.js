@@ -7,10 +7,15 @@ export default class Autocomplete {
   }
 
   onQueryChange(query) {
-    // Get data for the dropdown
-    let results = this.getResults(query, this.options.data);
+    let results;
+    //check if there is an endpoint provided
+    if (this.options.endPoint) {
+      results = this.getEndPointResults(query, this.options.endPoint);
+    } else {
+      // Get data for the dropdown
+      results = this.getResults(query, this.options.data);
+    }
     results = results.slice(0, this.options.numOfResults);
-
     this.updateDropdown(results);
   }
 
@@ -28,9 +33,62 @@ export default class Autocomplete {
     return results;
   }
 
+  getEndPointResults(query, endPoint) {
+    if (!query)  return [];
+
+    let results = [];
+
+    fetch(endPoint+query)
+      .then((response) => {
+        return response.json()})
+      .then((data) => {
+        results = data.items.map((child, i) => {
+          return {text: child['login']}
+        })
+      })
+
+    return results;
+  }
+
   updateDropdown(results) {
     this.listEl.innerHTML = '';
     this.listEl.appendChild(this.createResultsEl(results));
+
+    const resultsLength = results.length
+    let activeIndex
+    let previousIndex
+
+    document.addEventListener('keydown', (event) => {
+      if (event.keyCode == 40) {
+        if (activeIndex == undefined) {
+          this.listEl.children[0].classList.add('active')
+          activeIndex = 0
+        } else {
+          previousIndex = activeIndex;
+          activeIndex++;
+          this.listEl.children[activeIndex].classList.add('active');
+          this.listEl.children[previousIndex].classList.remove('active');
+        }
+      }
+
+      if (event.keyCode == 38) {
+        if (activeIndex == undefined) {
+          activeIndex = resultsLength-1
+          this.listEl.children[activeIndex].classList.add('active')
+        } else {
+          previousIndex = activeIndex;
+          activeIndex--;
+          this.listEl.children[activeIndex].classList.add('active');
+          this.listEl.children[previousIndex].classList.remove('active');
+        }
+      }
+
+      if (event.keyCode === 13) {
+        const { onSelect } = this.options;
+        if (typeof onSelect === 'function') onSelect(this.listEl.children[activeIndex].innerText);
+      }
+
+    })
   }
 
   createResultsEl(results) {
@@ -39,7 +97,7 @@ export default class Autocomplete {
       const el = document.createElement('li');
       Object.assign(el, {
         className: 'result',
-        textContent: result.text,
+        textContent: result.text
       });
 
       // Pass the value to the onSelect callback
