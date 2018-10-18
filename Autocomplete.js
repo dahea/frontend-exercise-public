@@ -15,8 +15,10 @@ export default class Autocomplete {
       // Get data for the dropdown
       results = this.getResults(query, this.options.data);
     }
+    console.log(results)
     results = results.slice(0, this.options.numOfResults);
     this.updateDropdown(results);
+    this.keyboardNav(results);
   }
 
   /**
@@ -36,24 +38,27 @@ export default class Autocomplete {
   getEndPointResults(query, endPoint) {
     if (!query)  return [];
 
-    let results = [];
-
-    fetch(endPoint+query)
-      .then((response) => {
-        return response.json()})
-      .then((data) => {
-        results = data.items.map((child, i) => {
-          return {text: child['login']}
-        })
-      })
-
-    return results;
+    return fetch(`${endPoint}${query}`)
+    .then((response) => {
+      if(response.ok) {
+          return response.json();
+      } else {
+          throw new Error('Server response wasn\'t OK');
+      }
+    })
+    .then((data) => {
+      return (data.items.map((child) => {
+        return {text: child.login}
+      }))
+    });
   }
 
   updateDropdown(results) {
     this.listEl.innerHTML = '';
     this.listEl.appendChild(this.createResultsEl(results));
+  }
 
+  keyboardNav(results) {
     const resultsLength = results.length
     let activeIndex
     let previousIndex
