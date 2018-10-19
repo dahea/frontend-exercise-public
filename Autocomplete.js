@@ -11,13 +11,8 @@ export default class Autocomplete {
     //check if there is an endpoint provided
     if (this.options.endPoint) {
       this.getEndPointResults(query, this.options.endPoint);
-      
     } else {
-      // Get data for the dropdown
-      results = this.getResults(query, this.options.data);
-      results = results.slice(0, this.options.numOfResults);
-      this.updateDropdown(results);
-      this.keyboardNav(results);
+      this.getResults(query, this.options.data);
     }
   }
 
@@ -32,7 +27,9 @@ export default class Autocomplete {
       return item.text.toLowerCase().includes(query.toLowerCase());
     });
 
-    return results;
+    results = results.slice(0, this.options.numOfResults);
+    this.updateDropdown(results);
+    this.keyboardNav(results);
   }
 
   getEndPointResults(query, endPoint) {
