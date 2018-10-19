@@ -10,15 +10,15 @@ export default class Autocomplete {
     let results;
     //check if there is an endpoint provided
     if (this.options.endPoint) {
-      results = this.getEndPointResults(query, this.options.endPoint);
+      this.getEndPointResults(query, this.options.endPoint);
+      
     } else {
       // Get data for the dropdown
       results = this.getResults(query, this.options.data);
+      results = results.slice(0, this.options.numOfResults);
+      this.updateDropdown(results);
+      this.keyboardNav(results);
     }
-    console.log(results)
-    results = results.slice(0, this.options.numOfResults);
-    this.updateDropdown(results);
-    this.keyboardNav(results);
   }
 
   /**
@@ -38,7 +38,9 @@ export default class Autocomplete {
   getEndPointResults(query, endPoint) {
     if (!query)  return [];
 
-    return fetch(`${endPoint}${query}`)
+    let results
+
+    fetch(`${endPoint}${query}`)
     .then((response) => {
       if(response.ok) {
           return response.json();
@@ -47,10 +49,12 @@ export default class Autocomplete {
       }
     })
     .then((data) => {
-      return (data.items.map((child) => {
+      results = data.items.map((child) => {
         return {text: child.login}
-      }))
-    });
+      })
+      this.updateDropdown(results);
+      this.keyboardNav(results);
+    })
   }
 
   updateDropdown(results) {
